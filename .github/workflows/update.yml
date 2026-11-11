@@ -46,6 +46,9 @@ jobs:
           git diff --cached --quiet || git commit -m "Données : historique au $(date -u +%Y-%m-%d) [skip ci]"
           git push
 
+      - name: Version des fichiers (le navigateur recharge après chaque publication)
+        run: sed -i "s/__V__/${GITHUB_SHA::7}-$(date -u +%Y%m%d%H%M)/g" docs/index.html
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
