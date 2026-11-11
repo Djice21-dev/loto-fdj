@@ -60,8 +60,15 @@ def lire_archive(raw):
         rows = []
         with zipfile.ZipFile(io.BytesIO(raw)) as z:
             for name in z.namelist():
-                if name.lower().endswith(".csv"):
-                    rows += lire_csv(z.read(name))
+                low = name.lower()
+                if not low.endswith(".csv"):
+                    continue
+                if "super" in low or "grand" in low:  # Super Loto / Grand Loto exclus
+                    print(f"    ignoré : {name}")
+                    continue
+                part = lire_csv(z.read(name))
+                print(f"    {name} : {len(part)} lignes")
+                rows += part
         return rows
     return lire_csv(raw)
 
@@ -79,7 +86,7 @@ def parse_date(s):
 def normaliser(rows):
     tirages = {}
     for row in rows:
-        r = {(k or "").strip().lower(): (v or "").strip() for k, v in row.items()}
+        r = {k.strip().lower(): v.strip() for k, v in row.items() if isinstance(k, str) and isinstance(v, str)}
         try:
             boules = sorted(int(r[f"boule_{i}"]) for i in range(1, 6))
             chance = int(r["numero_chance"])
@@ -95,11 +102,16 @@ def normaliser(rows):
 
 
 def urls_archives():
-    urls = list(ARCHIVES)
+    """Archives Loto connues ; la page FDJ n'est lue qu'en secours si l'une échoue."""
+    return list(ARCHIVES)
+
+
+def urls_page_historique(deja):
+    urls = []
     try:
         page = http_get(HISTORIQUE_PAGE).decode("utf-8", "ignore")
         for u in re.findall(r"https://www\.sto\.api\.fdj\.fr/anonymous/service-draw-info/v3/documentations/[\w-]+", page):
-            if u not in urls:
+            if u not in deja and u not in urls:
                 urls.append(u)
     except Exception as e:  # la liste connue suffit
         print(f"Page historique inaccessible ({e}), liste connue utilisée")
@@ -107,13 +119,22 @@ def urls_archives():
 
 
 def telecharger():
-    rows = []
-    for u in urls_archives():
+    rows, echec = [], False
+    urls = urls_archives()
+    for u in urls:
         try:
+            print(f"GET {u}")
             rows += lire_archive(http_get(u))
-            print(f"OK  {u}")
         except Exception as e:
+            echec = True
             print(f"ERR {u}: {e}")
+    if echec:  # liens changés : on tente ceux de la page, Super/Grand Loto filtrés par nom de fichier
+        for u in urls_page_historique(urls):
+            try:
+                print(f"GET {u}")
+                rows += lire_archive(http_get(u))
+            except Exception as e:
+                print(f"ERR {u}: {e}")
     return rows
 
 
