@@ -1,6 +1,7 @@
 // Loto FDJ — générateur de grilles selon la méthode validée le 11/11/2026.
-// Règles : suites (aucune ou 1 paire), parité (1 à 4 pairs), au plus 2 numéros
-// par dizaine, combinaison jamais sortie depuis le 6 octobre 2008.
+// Règles : suites (aucune ou 1 paire), parité (1 à 4 pairs), au plus 2 numéros par dizaine,
+// au plus 2 numéros de même terminaison, au moins 1 numéro au-dessus de 31,
+// combinaison jamais sortie depuis le 6 octobre 2008.
 
 const fmtPct = (x, d = 1) => x > 0 && x < 0.0001 ? '< 0,01 %' : (x * 100).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' %';
 const fmtInt = x => x.toLocaleString('fr-FR');
@@ -77,7 +78,9 @@ function afficherStats() {
     tableComparaison('Pair / impair (P = pairs, I = impairs)', th.pairs, ob.pairs, n, ['0', '1', '2', '3', '4', '5'], k => ['1', '2', '3', '4'].includes(k), k => `${k} P / ${5 - k} I`) + texteTest(s.tests.pairs) +
     `<details><summary>Dizaines : les 126 vecteurs [1-9]-[10-19]-[20-29]-[30-39]-[40-49]</summary>` +
     tableComparaison('', th.vecteurs, ob.vecteurs, n, ordreVec, k => Math.max(...k.split('-').map(Number)) <= MAX_PAR_DIZAINE) +
-    `</details>` + texteTest(s.tests.dizaines);
+    `</details>` + texteTest(s.tests.dizaines) +
+    (th.unites ? tableComparaison('Terminaisons (numéros avec le même chiffre des unités)', th.unites, ob.unites, n, ['1', '2', '3', '4', '5'], k => +k <= MAX_MEME_UNITE, k => k === '1' ? 'Toutes différentes' : `${k} identiques`) + texteTest(s.tests.unites) : '') +
+    (th.hauts ? tableComparaison('Numéros au-dessus de 31', th.hauts, ob.hauts, n, ['0', '1', '2', '3', '4', '5'], k => +k >= MIN_HAUTS, k => `${k} numéro${+k > 1 ? 's' : ''}`) + texteTest(s.tests.hauts) : '');
 
 }
 

@@ -4,7 +4,9 @@
 2. Parité    : de 1 à 4 pairs (0/5 et 5/0 exclus, règle élargie le 11/11/2026).
 3. Dizaines  : vecteur [1-9]-[10-19]-[20-29]-[30-39]-[40-49], au plus 2 numéros
                par dizaine (51 vecteurs sur 126).
-4. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
+4. Terminaisons : au plus 2 numéros avec le même chiffre des unités.
+5. Numéros hauts : au moins 1 numéro au-dessus de 31.
+6. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
 """
 from collections import Counter
 from itertools import combinations
@@ -22,6 +24,9 @@ SUITE_LABELS = {
 SUITES_OK = {"Aucune suite", "1 paire"}
 PAIRS_OK = {1, 2, 3, 4}
 MAX_PAR_DIZAINE = 2
+MAX_MEME_UNITE = 2   # règle ajoutée le 11/11/2026
+SEUIL_HAUT = 31      # au moins MIN_HAUTS numéros > SEUIL_HAUT
+MIN_HAUTS = 1
 DIZAINE_SIZES = (9, 10, 10, 10, 10)
 
 
@@ -64,23 +69,35 @@ def vecteur_count(v):
     return out
 
 
+def max_meme_unite(combo):
+    return max(Counter(x % 10 for x in combo).values())
+
+
+def nb_hauts(combo):
+    return sum(1 for x in combo if x > SEUIL_HAUT)
+
+
 def respecte_regles(combo):
     return (
         suite_type(combo) in SUITES_OK
         and nb_pairs(combo) in PAIRS_OK
         and max(vecteur(combo)) <= MAX_PAR_DIZAINE
+        and max_meme_unite(combo) <= MAX_MEME_UNITE
+        and nb_hauts(combo) >= MIN_HAUTS
     )
 
 
 def theorie():
     """Dénombrement exhaustif des 1 906 884 combinaisons."""
-    suites, pairs, vecs = Counter(), Counter(), Counter()
+    suites, pairs, vecs, unites, hauts = Counter(), Counter(), Counter(), Counter(), Counter()
     total = ok = 0
     for c in combinations(range(1, 50), 5):
         total += 1
         suites[suite_type(c)] += 1
         pairs[nb_pairs(c)] += 1
         vecs[vecteur(c)] += 1
+        unites[max_meme_unite(c)] += 1
+        hauts[nb_hauts(c)] += 1
         if respecte_regles(c):
             ok += 1
     return {
@@ -89,4 +106,6 @@ def theorie():
         "suites": dict(suites),
         "pairs": {str(k): v for k, v in pairs.items()},
         "vecteurs": {vecteur_str(k): v for k, v in vecs.items()},
+        "unites": {str(k): v for k, v in unites.items()},
+        "hauts": {str(k): v for k, v in hauts.items()},
     }
