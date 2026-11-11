@@ -45,9 +45,9 @@ function tableComparaison(titre, theorie, observe, n, ordre, retenu, libelle = k
   const total = Object.values(theorie).reduce((a, b) => a + b, 0);
   const rows = ordre.map(k => {
     const t = (theorie[k] || 0) / total, o = n ? (observe[k] || 0) / n : 0;
-    return `<tr class="${retenu(k) ? 'ok' : 'ko'}"><td>${libelle(k)}</td><td>${fmtPct(t, 2)}</td><td>${fmtPct(o, 2)}</td><td>${fmtInt(observe[k] || 0)}</td><td>${retenu(k) ? 'Oui' : 'Non'}</td></tr>`;
+    return `<tr class="${retenu(k) ? 'ok' : 'ko'}"><td>${libelle(k)}</td><td>${fmtPct(t, 2)}</td><td>${fmtPct(o, 2)}</td><td class="col-n">${fmtInt(observe[k] || 0)}</td><td class="col-r">${retenu(k) ? '✓' : '✗'}</td></tr>`;
   }).join('');
-  return `<h3>${titre}</h3><table><thead><tr><th>Profil</th><th>Théorique</th><th>Observé</th><th>Tirages</th><th>Retenu</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `${titre ? `<h3>${titre}</h3>` : ''}<div class="table-wrap"><table><thead><tr><th>Profil</th><th>Théorie</th><th>Observé</th><th class="col-n">Tirages</th><th class="col-r">Retenu</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function texteTest(t) {
