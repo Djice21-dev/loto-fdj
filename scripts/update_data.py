@@ -97,7 +97,8 @@ def normaliser(rows):
             continue
         if not all(1 <= b <= 49 for b in boules) or not 1 <= chance <= 10:
             continue
-        tirages[d] = {"date": d.isoformat(), "boules": boules, "chance": chance}
+        rap = {k: v for k, v in r.items() if k.startswith("rapport_du_rang") or k.startswith("nombre_de_gagnant")}
+        tirages[d] = {"date": d.isoformat(), "boules": boules, "chance": chance, "_rapports": rap}
     return [tirages[d] for d in sorted(tirages)]
 
 
@@ -217,6 +218,11 @@ def main(args):
     if not tirages:
         sys.exit("Aucun tirage récupéré : données existantes conservées.")
     OUT.mkdir(parents=True, exist_ok=True)
+    # gains officiels par rang (pour le test du modèle), dans un fichier séparé
+    (OUT / "rapports.json").write_text(json.dumps(
+        [{"date": t["date"], **t["_rapports"]} for t in tirages], ensure_ascii=False, separators=(",", ":")))
+    for t in tirages:
+        t.pop("_rapports")
     (OUT / "draws.json").write_text(json.dumps(tirages, separators=(",", ":")))
     (OUT / "stats.json").write_text(json.dumps(calculer(tirages), ensure_ascii=False, separators=(",", ":")))
     print(f"{len(tirages)} tirages du {tirages[0]['date']} au {tirages[-1]['date']}")
