@@ -10,7 +10,7 @@ Sur les 1 906 884 combinaisons possibles de 5 numéros, on garde celles qui resp
 2. **Parité** : de 1 à 4 numéros pairs (on exclut seulement 0 ou 5 pairs).
 3. **Dizaines** : chaque combinaison est décrite par un vecteur [1-9]-[10-19]-[20-29]-[30-39]-[40-49]. On garde au plus 2 numéros par dizaine, soit 51 vecteurs sur 126.
 4. **Terminaisons** : au plus 2 numéros avec le même chiffre des unités.
-5. **Numéros hauts** : au moins 1 numéro au-dessus de 31.
+5. **Numéros hauts** : de 1 à 3 numéros au-dessus de 31.
 6. **Historique** : la combinaison n'est jamais sortie depuis le 6 octobre 2008.
 
 Les cinq premières règles gardent 1 197 743 combinaisons, ce qui représente 62,8 % des tirages attendus.

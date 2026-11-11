@@ -4,7 +4,7 @@ const SUITES_OK = new Set(['Aucune suite', '1 paire']);
 const PAIRS_OK = new Set([1, 2, 3, 4]);
 const MAX_PAR_DIZAINE = 2;
 const MAX_MEME_UNITE = 2;  // au plus 2 numéros avec le même chiffre des unités
-const SEUIL_HAUT = 31, MIN_HAUTS = 1;  // au moins 1 numéro au-dessus de 31
+const SEUIL_HAUT = 31, MIN_HAUTS = 1, MAX_HAUTS = 3;  // de 1 à 3 numéros au-dessus de 31
 
 
 function suiteType(c) {
@@ -36,6 +36,7 @@ function violations(c, historique) {
   if (mu > MAX_MEME_UNITE) v += mu - MAX_MEME_UNITE;
   const h = nbHauts(c);
   if (h < MIN_HAUTS) v += MIN_HAUTS - h;
+  if (h > MAX_HAUTS) v += h - MAX_HAUTS;
   if (historique.has(cle(c))) v += 1;
   return v;
 }

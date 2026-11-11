@@ -5,7 +5,7 @@
 3. Dizaines  : vecteur [1-9]-[10-19]-[20-29]-[30-39]-[40-49], au plus 2 numéros
                par dizaine (51 vecteurs sur 126).
 4. Terminaisons : au plus 2 numéros avec le même chiffre des unités.
-5. Numéros hauts : au moins 1 numéro au-dessus de 31.
+5. Numéros hauts : de 1 à 3 numéros au-dessus de 31.
 6. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
 """
 from collections import Counter
@@ -27,6 +27,7 @@ MAX_PAR_DIZAINE = 2
 MAX_MEME_UNITE = 2   # règle ajoutée le 11/11/2026
 SEUIL_HAUT = 31      # au moins MIN_HAUTS numéros > SEUIL_HAUT
 MIN_HAUTS = 1
+MAX_HAUTS = 3       # 4 ou 5 numéros hauts exclus (11/11/2026)
 DIZAINE_SIZES = (9, 10, 10, 10, 10)
 
 
@@ -83,7 +84,7 @@ def respecte_regles(combo):
         and nb_pairs(combo) in PAIRS_OK
         and max(vecteur(combo)) <= MAX_PAR_DIZAINE
         and max_meme_unite(combo) <= MAX_MEME_UNITE
-        and nb_hauts(combo) >= MIN_HAUTS
+        and MIN_HAUTS <= nb_hauts(combo) <= MAX_HAUTS
     )
 
 
