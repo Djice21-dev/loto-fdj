@@ -1,7 +1,7 @@
 // Règles de la méthode validée le 11/11/2026 et générateur des 10 grilles (sans DOM).
 
 const SUITES_OK = new Set(['Aucune suite', '1 paire']);
-const PAIRS_OK = new Set([2, 3]);
+const PAIRS_OK = new Set([1, 2, 3, 4]);
 const MAX_PAR_DIZAINE = 2;
 
 
@@ -26,7 +26,7 @@ function violations(c, historique) {
   if (new Set(c).size < 5) v += 5;
   if (!SUITES_OK.has(suiteType(c))) v += 1;
   const p = nbPairs(c);
-  if (!PAIRS_OK.has(p)) v += p < 2 ? 2 - p : p - 3;
+  if (!PAIRS_OK.has(p)) v += p < 1 ? 1 - p : p - 4;
   vecteur(c).forEach(n => { if (n > MAX_PAR_DIZAINE) v += n - MAX_PAR_DIZAINE; });
   if (historique.has(cle(c))) v += 1;
   return v;

@@ -1,7 +1,7 @@
 """Règles de filtrage validées (méthode du 11/11/2026).
 
 1. Suites    : aucune suite ou une seule paire de numéros consécutifs.
-2. Parité    : 2 pairs / 3 impairs ou 3 pairs / 2 impairs.
+2. Parité    : de 1 à 4 pairs (0/5 et 5/0 exclus, règle élargie le 11/11/2026).
 3. Dizaines  : vecteur [1-9]-[10-19]-[20-29]-[30-39]-[40-49], au plus 2 numéros
                par dizaine (51 vecteurs sur 126).
 4. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
@@ -20,7 +20,7 @@ SUITE_LABELS = {
     (5,): "Suite de 5",
 }
 SUITES_OK = {"Aucune suite", "1 paire"}
-PAIRS_OK = {2, 3}
+PAIRS_OK = {1, 2, 3, 4}
 MAX_PAR_DIZAINE = 2
 DIZAINE_SIZES = (9, 10, 10, 10, 10)
 
