@@ -8,26 +8,20 @@ const $ = sel => document.querySelector(sel);
 
 let STATS = null, DRAWS = [], HISTO = new Set();
 
-function choisirDoublon(modeRetards) {
-  if (modeRetards && STATS) {
-    const r = STATS.retards;
-    return Object.keys(r).map(Number).sort((a, b) => r[b] - r[a] || a - b)[0];
-  }
-  return 1 + Math.floor(Math.random() * 49);
-}
+// Le doublon est tiré au hasard : les sorties passées n'ont pas de valeur prédictive.
+const choisirDoublon = () => 1 + Math.floor(Math.random() * 49);
 
 function boule(n, cls = '') { return `<span class="boule ${cls}">${n}</span>`; }
 
 function generer() {
-  const modeRetards = $('#opt-retards').checked;
-  const doublon = choisirDoublon(modeRetards);
+  const doublon = choisirDoublon();
   const grilles = genererGrilles(doublon, HISTO);
   const out = $('#grilles');
   if (!grilles) { out.innerHTML = '<p class="alerte">Aucune solution trouvée, relancez la génération.</p>'; return; }
   const chances = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const couverts = new Set(grilles.flat());
   $('#resume-grilles').innerHTML =
-    `${couverts.size}/49 numéros couverts · doublon : <b>${doublon}</b> (${modeRetards ? 'numéro le plus en retard' : 'tiré au hasard'}) · numéros Chance 1 à 10, un par grille`;
+    `${couverts.size}/49 numéros couverts · doublon : <b>${doublon}</b> (tiré au hasard) · numéros Chance 1 à 10, un par grille`;
   out.innerHTML = grilles.map((g, i) => {
     const p = nbPairs(g);
     return `<div class="grille">
@@ -85,17 +79,6 @@ function afficherStats() {
     tableComparaison('', th.vecteurs, ob.vecteurs, n, ordreVec, k => Math.max(...k.split('-').map(Number)) <= MAX_PAR_DIZAINE) +
     `</details>` + texteTest(s.tests.dizaines);
 
-  const maxF = Math.max(...Object.values(s.frequences));
-  $('#numeros').innerHTML = Object.keys(s.frequences).map(k =>
-    `<div class="cell"><b>${k}</b><span class="bar" style="width:${(s.frequences[k] / maxF) * 100}%"></span><small>${s.frequences[k]} sorties · retard ${s.retards[k]}</small></div>`).join('');
-  $('#chance').innerHTML = Object.keys(s.frequences_chance).map(k =>
-    `<div class="cell"><b>${k}</b><small>${s.frequences_chance[k]} sorties (${fmtPct(s.frequences_chance[k] / n)}) · retard ${s.retards_chance[k]}</small></div>`).join('');
-
-  const bt = s.backtest_retards;
-  $('#backtest').innerHTML = `Sur ${fmtInt(bt.essais)} tirages, le numéro le plus en retard est sorti au tirage suivant dans <b>${fmtPct(bt.taux)}</b> des cas, contre <b>${fmtPct(bt.taux_hasard)}</b> pour n'importe quel numéro (5/49). ` +
-    (Math.abs(bt.taux - bt.taux_hasard) < 2 * Math.sqrt(bt.taux_hasard * (1 - bt.taux_hasard) / bt.essais)
-      ? 'L\'écart est dans la marge du hasard : le retard n\'a pas de valeur prédictive.'
-      : 'L\'écart dépasse la marge habituelle du hasard sur cet échantillon.');
 }
 
 async function init() {

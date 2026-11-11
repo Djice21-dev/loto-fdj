@@ -2,7 +2,7 @@
 
 Sorties :
   docs/data/draws.json  tirages (date, 5 boules triées, numéro Chance)
-  docs/data/stats.json  théorie vs observé, couverture des règles, fréquences, retards
+  docs/data/stats.json  théorie vs observé, couverture des règles
 
 Usage : python scripts/update_data.py [--local fichier.zip|fichier.csv ...]
 """
@@ -185,30 +185,6 @@ def calculer(tirages):
 
     respect = [R.respecte_regles(c) for c in combos]
 
-    # fréquences et retards des numéros
-    freq = Counter(b for c in combos for b in c)
-    freq_chance = Counter(t["chance"] for t in tirages)
-    dernier = {}
-    for i, c in enumerate(combos):
-        for b in c:
-            dernier[b] = i
-    retards = {b: (n - 1 - dernier[b]) if b in dernier else n for b in range(1, 50)}
-    dernier_ch = {}
-    for i, t in enumerate(tirages):
-        dernier_ch[t["chance"]] = i
-    retards_ch = {k: (n - 1 - dernier_ch[k]) if k in dernier_ch else n for k in range(1, 11)}
-
-    # backtest « retards » : le numéro le plus en retard sort-il au tirage suivant ?
-    hits = essais = 0
-    last = {}
-    for i, c in enumerate(combos):
-        if i >= 50:
-            plus_retard = min(range(1, 50), key=lambda b: (last.get(b, -1), b))
-            essais += 1
-            hits += plus_retard in c
-        for b in c:
-            last[b] = i
-
     return {
         "maj": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "nb_tirages": n,
@@ -226,16 +202,6 @@ def calculer(tirages):
             "observee": (sum(respect) / n) if n else None,
             "tirages_conformes": sum(respect),
             "dernier_conforme": respect[-1] if n else None,
-        },
-        "frequences": {str(b): freq.get(b, 0) for b in range(1, 50)},
-        "retards": {str(b): retards[b] for b in range(1, 50)},
-        "frequences_chance": {str(k): freq_chance.get(k, 0) for k in range(1, 11)},
-        "retards_chance": {str(k): retards_ch[k] for k in range(1, 11)},
-        "backtest_retards": {
-            "essais": essais,
-            "succes": hits,
-            "taux": (hits / essais) if essais else None,
-            "taux_hasard": 5 / 49,
         },
     }
 

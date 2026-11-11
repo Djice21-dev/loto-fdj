@@ -13,13 +13,15 @@ Sur les 1 906 884 combinaisons possibles de 5 numéros, on garde celles qui resp
 
 Les trois premières règles gardent 901 185 combinaisons, ce qui représente 47,3 % des tirages attendus.
 
-Les 10 grilles occupent 50 cases pour 49 numéros : un seul numéro apparaît deux fois (le « doublon »). Chaque grille reçoit un numéro Chance différent, de 1 à 10.
+Les 10 grilles occupent 50 cases pour 49 numéros : un seul numéro apparaît deux fois (le « doublon », tiré au hasard). Chaque grille reçoit un numéro Chance différent, de 1 à 10.
+
+Le nombre de sorties passées des numéros n'est pas utilisé : l'analyse sur l'historique montre qu'il n'a aucune valeur prédictive.
 
 Chaque combinaison a la même probabilité de sortir. Ces règles orientent les grilles vers les profils les plus fréquents, mais elles n'augmentent pas les chances d'une grille donnée.
 
 ## Fonctionnement
 
-- `scripts/update_data.py` télécharge les archives FDJ, puis produit deux fichiers : `docs/data/draws.json` (les tirages) et `docs/data/stats.json` (comparaison théorie / observé avec test du khi-deux, fréquences des numéros, retards, test de la règle « retards »).
+- `scripts/update_data.py` télécharge les archives FDJ, puis produit deux fichiers : `docs/data/draws.json` (les tirages) et `docs/data/stats.json` (comparaison théorie / observé avec test du khi-deux, couverture des règles).
 - `docs/regles.js` contient les règles et le générateur, `docs/app.js` gère l'interface.
 - `.github/workflows/update.yml` lance la mise à jour automatique après chaque tirage (lundi, mercredi et samedi soir, avec un rattrapage le lendemain matin), puis publie le site sur GitHub Pages.
 
