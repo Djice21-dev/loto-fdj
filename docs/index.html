@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loto FDJ — Générateur de grilles</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Loto FDJ — Générateur de grilles</h1>
+    <p id="etat" class="sub">Chargement de l'historique…</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Dernier tirage</h2>
+      <div id="dernier" class="boules"></div>
+    </section>
+
+    <section>
+      <h2>10 grilles proposées</h2>
+      <p class="sub">Chaque grille respecte les 3 règles et n'est jamais sortie depuis octobre 2008. Les 10 grilles couvrent les 49 numéros (un doublon) et les 10 numéros Chance.</p>
+      <div class="actions">
+        <button id="btn-generer">Générer 10 nouvelles grilles</button>
+        <button id="btn-copier" class="secondaire">Copier</button>
+        <label><input type="checkbox" id="opt-retards"> Doublon = numéro le plus en retard</label>
+      </div>
+      <p id="resume-grilles" class="sub"></p>
+      <div id="grilles" class="grilles"></div>
+    </section>
+
+    <section>
+      <h2>Règles appliquées</h2>
+      <ol class="regles">
+        <li><b>Suites</b> : aucune suite ou une seule paire de numéros consécutifs.</li>
+        <li><b>Parité</b> : 2 pairs / 3 impairs ou 3 pairs / 2 impairs.</li>
+        <li><b>Dizaines</b> : au plus 2 numéros par dizaine (51 vecteurs sur 126).</li>
+        <li><b>Historique</b> : combinaison jamais sortie depuis le 6 octobre 2008.</li>
+      </ol>
+      <div id="couverture" class="kpis"></div>
+    </section>
+
+    <section>
+      <h2>Théorie et historique</h2>
+      <p class="sub">Part de chaque profil dans les 1 906 884 combinaisons, comparée aux tirages réels.</p>
+      <div id="analyse"></div>
+    </section>
+
+    <section>
+      <h2>Numéros : sorties et retards</h2>
+      <div id="numeros" class="cells"></div>
+      <h3>Numéros Chance</h3>
+      <div id="chance" class="cells"></div>
+      <h3>Le retard est-il prédictif ?</h3>
+      <p id="backtest"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Chaque combinaison a la même probabilité de sortir : 1 chance sur 19 068 840 pour le rang 1. Les règles orientent les grilles vers les profils les plus fréquents, elles n'augmentent pas les chances d'une grille donnée.</p>
+    <p>Jouer comporte des risques : endettement, isolement, dépendance. Pour être aidé, appelez le 09 74 75 13 13 (appel non surtaxé).</p>
+  </footer>
+
+  <script src="regles.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

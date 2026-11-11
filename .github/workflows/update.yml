@@ -1,0 +1,62 @@
+name: Mise à jour et publication
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # lundi, mercredi, samedi à 21h30 UTC (après le tirage de 20h15–20h30, heure de Paris)
+    - cron: "30 21 * * 1,3,6"
+    # rattrapage le lendemain matin si l'archive FDJ n'était pas encore à jour
+    - cron: "0 6 * * 0,2,4"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dépendances
+        run: pip install scipy
+
+      - name: Récupération de l'historique et calcul des statistiques
+        run: python scripts/update_data.py
+
+      - name: Test du générateur
+        run: node tests/test_generateur.js
+
+      - name: Enregistrement des données
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data
+          git diff --cached --quiet || git commit -m "Données : historique au $(date -u +%Y-%m-%d) [skip ci]"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
