@@ -1,7 +1,7 @@
 // Loto FDJ — générateur de grilles selon la méthode validée le 11/11/2026.
 // Règles : suites (aucune ou 1 paire), parité (1 à 4 pairs), au plus 2 numéros par dizaine,
 // au plus 2 numéros de même terminaison, de 1 à 3 numéros au-dessus de 31,
-// au plus 3 cases qui se suivent dans une colonne du bulletin,
+// au plus 2 cases qui se suivent dans une colonne du bulletin,
 // combinaison jamais sortie depuis le 6 octobre 2008.
 
 const fmtPct = (x, d = 1) => x > 0 && x < 0.0001 ? '< 0,01 %' : (x * 100).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' %';

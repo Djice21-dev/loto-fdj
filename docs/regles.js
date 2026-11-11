@@ -4,7 +4,7 @@ const SUITES_OK = new Set(['Aucune suite', '1 paire']);
 const PAIRS_OK = new Set([1, 2, 3, 4]);
 const MAX_PAR_DIZAINE = 2;
 const MAX_MEME_UNITE = 2;  // au plus 2 numéros avec le même chiffre des unités
-const MAX_COLONNE = 3;  // bulletin : au plus 3 cases qui se suivent dans une colonne (numéros espacés de 5)
+const MAX_COLONNE = 2;  // bulletin : au plus 2 cases qui se suivent dans une colonne (numéros espacés de 5)
 const SEUIL_HAUT = 31, MIN_HAUTS = 1, MAX_HAUTS = 3;  // de 1 à 3 numéros au-dessus de 31
 
 

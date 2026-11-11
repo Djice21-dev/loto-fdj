@@ -6,8 +6,8 @@
                par dizaine (51 vecteurs sur 126).
 4. Terminaisons : au plus 2 numéros avec le même chiffre des unités.
 5. Numéros hauts : de 1 à 3 numéros au-dessus de 31.
-6. Colonnes du bulletin : au plus 3 cases qui se suivent dans une même colonne
-               (numéros espacés de 5, ex. 16-21-26-31 exclu), règle anti-partage.
+6. Colonnes du bulletin : au plus 2 cases qui se suivent dans une même colonne
+               (numéros espacés de 5, ex. 8-13-18 exclu), règle anti-partage.
 7. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
 """
 from collections import Counter
@@ -30,7 +30,7 @@ MAX_MEME_UNITE = 2   # règle ajoutée le 11/11/2026
 SEUIL_HAUT = 31      # au moins MIN_HAUTS numéros > SEUIL_HAUT
 MIN_HAUTS = 1
 MAX_HAUTS = 3       # 4 ou 5 numéros hauts exclus (11/11/2026)
-MAX_COLONNE = 3      # bulletin 5 colonnes : 4 ou 5 cases qui se suivent exclues (11/11/2026)
+MAX_COLONNE = 2      # bulletin 5 colonnes : 3 cases ou plus qui se suivent exclues (11/11/2026)
 DIZAINE_SIZES = (9, 10, 10, 10, 10)
 
 
