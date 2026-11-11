@@ -4,6 +4,7 @@ const SUITES_OK = new Set(['Aucune suite', '1 paire']);
 const PAIRS_OK = new Set([1, 2, 3, 4]);
 const MAX_PAR_DIZAINE = 2;
 const MAX_MEME_UNITE = 2;  // au plus 2 numéros avec le même chiffre des unités
+const MAX_COLONNE = 3;  // bulletin : au plus 3 cases qui se suivent dans une colonne (numéros espacés de 5)
 const SEUIL_HAUT = 31, MIN_HAUTS = 1, MAX_HAUTS = 3;  // de 1 à 3 numéros au-dessus de 31
 
 
@@ -23,6 +24,17 @@ const nbPairs = c => c.filter(x => x % 2 === 0).length;
 const vecteur = c => { const v = [0, 0, 0, 0, 0]; c.forEach(x => v[Math.min(Math.floor(x / 10), 4)]++); return v; };
 const maxMemeUnite = c => { const u = {}; c.forEach(x => { u[x % 10] = (u[x % 10] || 0) + 1; }); return Math.max(...Object.values(u)); };
 const nbHauts = c => c.filter(x => x > SEUIL_HAUT).length;
+const colonneMax = c => {
+  const s = new Set(c);
+  let best = 1;
+  s.forEach(x => {
+    if (s.has(x - 5)) return;
+    let k = 1;
+    while (s.has(x + 5 * k)) k++;
+    best = Math.max(best, k);
+  });
+  return best;
+};
 const cle = c => [...c].sort((a, b) => a - b).join('-');
 
 function violations(c, historique) {
@@ -37,6 +49,8 @@ function violations(c, historique) {
   const h = nbHauts(c);
   if (h < MIN_HAUTS) v += MIN_HAUTS - h;
   if (h > MAX_HAUTS) v += h - MAX_HAUTS;
+  const cm = colonneMax(c);
+  if (cm > MAX_COLONNE) v += cm - MAX_COLONNE;
   if (historique.has(cle(c))) v += 1;
   return v;
 }
@@ -77,4 +91,4 @@ function genererGrilles(doublon, historique) {
   return null;
 }
 
-if (typeof module !== 'undefined') module.exports = { genererGrilles, violations, suiteType, vecteur, nbPairs, maxMemeUnite, nbHauts, cle, shuffle };
+if (typeof module !== 'undefined') module.exports = { genererGrilles, violations, suiteType, vecteur, nbPairs, maxMemeUnite, nbHauts, colonneMax, cle, shuffle };

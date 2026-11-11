@@ -175,6 +175,7 @@ def calculer(tirages):
     obs_vec = Counter(R.vecteur_str(R.vecteur(c)) for c in combos)
     obs_unites = Counter(str(R.max_meme_unite(c)) for c in combos)
     obs_hauts = Counter(str(R.nb_hauts(c)) for c in combos)
+    obs_cols = Counter(str(R.colonne_max(c)) for c in combos)
 
     # classes de vecteurs pour le test (126 cellules trop fines)
     th_cls, obs_cls = Counter(), Counter()
@@ -194,13 +195,14 @@ def calculer(tirages):
         "premier": tirages[0]["date"] if n else None,
         "dernier": tirages[-1] if n else None,
         "theorie": th,
-        "observe": {"suites": obs_suites, "pairs": obs_pairs, "vecteurs": obs_vec, "unites": obs_unites, "hauts": obs_hauts},
+        "observe": {"suites": obs_suites, "pairs": obs_pairs, "vecteurs": obs_vec, "unites": obs_unites, "hauts": obs_hauts, "colonnes": obs_cols},
         "tests": {
             "suites": chi2_test(obs_suites, proba(th["suites"]), n) if n else None,
             "pairs": chi2_test(obs_pairs, proba(th["pairs"]), n) if n else None,
             "dizaines": chi2_test(obs_cls, proba(th_cls), n) if n else None,
             "unites": chi2_test(obs_unites, proba(th["unites"]), n) if n else None,
             "hauts": chi2_test(obs_hauts, proba(th["hauts"]), n) if n else None,
+            "colonnes": chi2_test(obs_cols, proba(th["colonnes"]), n) if n else None,
         },
         "couverture": {
             "attendue": th["conservees"] / total,

@@ -4,16 +4,17 @@ Application web qui propose 10 grilles Loto couvrant les numéros 1 à 49, selon
 
 ## Méthode
 
-Sur les 1 906 884 combinaisons possibles de 5 numéros, on garde celles qui respectent les six règles suivantes :
+Sur les 1 906 884 combinaisons possibles de 5 numéros, on garde celles qui respectent les sept règles suivantes :
 
 1. **Suites** : aucune suite, ou une seule paire de numéros consécutifs.
 2. **Parité** : de 1 à 4 numéros pairs (on exclut seulement 0 ou 5 pairs).
 3. **Dizaines** : chaque combinaison est décrite par un vecteur [1-9]-[10-19]-[20-29]-[30-39]-[40-49]. On garde au plus 2 numéros par dizaine, soit 51 vecteurs sur 126.
 4. **Terminaisons** : au plus 2 numéros avec le même chiffre des unités.
 5. **Numéros hauts** : de 1 à 3 numéros au-dessus de 31.
-6. **Historique** : la combinaison n'est jamais sortie depuis le 6 octobre 2008.
+6. **Colonnes du bulletin** : au plus 3 cases qui se suivent dans une même colonne du bulletin (numéros espacés de 5, par ex. 16-21-26-31 exclu). Règle anti-partage : ces dessins sont souvent cochés par les joueurs, leur fréquence de sortie est conforme au hasard.
+7. **Historique** : la combinaison n'est jamais sortie depuis le 6 octobre 2008.
 
-Les cinq premières règles gardent 1 197 743 combinaisons, ce qui représente 62,8 % des tirages attendus.
+Les six premières règles gardent 1 165 694 combinaisons, soit 61,1 % des tirages attendus.
 
 Les 10 grilles occupent 50 cases pour 49 numéros : un seul numéro apparaît deux fois (le « doublon », tiré au hasard). Chaque grille reçoit un numéro Chance différent, de 1 à 10.
 

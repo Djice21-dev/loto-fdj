@@ -6,7 +6,9 @@
                par dizaine (51 vecteurs sur 126).
 4. Terminaisons : au plus 2 numéros avec le même chiffre des unités.
 5. Numéros hauts : de 1 à 3 numéros au-dessus de 31.
-6. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
+6. Colonnes du bulletin : au plus 3 cases qui se suivent dans une même colonne
+               (numéros espacés de 5, ex. 16-21-26-31 exclu), règle anti-partage.
+7. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
 """
 from collections import Counter
 from itertools import combinations
@@ -28,6 +30,7 @@ MAX_MEME_UNITE = 2   # règle ajoutée le 11/11/2026
 SEUIL_HAUT = 31      # au moins MIN_HAUTS numéros > SEUIL_HAUT
 MIN_HAUTS = 1
 MAX_HAUTS = 3       # 4 ou 5 numéros hauts exclus (11/11/2026)
+MAX_COLONNE = 3      # bulletin 5 colonnes : 4 ou 5 cases qui se suivent exclues (11/11/2026)
 DIZAINE_SIZES = (9, 10, 10, 10, 10)
 
 
@@ -78,6 +81,20 @@ def nb_hauts(combo):
     return sum(1 for x in combo if x > SEUIL_HAUT)
 
 
+def colonne_max(combo):
+    """Plus longue série de cases qui se suivent dans une colonne du bulletin (pas de 5)."""
+    s = set(combo)
+    best = 1
+    for x in s:
+        if x - 5 in s:
+            continue
+        k = 1
+        while x + 5 * k in s:
+            k += 1
+        best = max(best, k)
+    return best
+
+
 def respecte_regles(combo):
     return (
         suite_type(combo) in SUITES_OK
@@ -85,12 +102,13 @@ def respecte_regles(combo):
         and max(vecteur(combo)) <= MAX_PAR_DIZAINE
         and max_meme_unite(combo) <= MAX_MEME_UNITE
         and MIN_HAUTS <= nb_hauts(combo) <= MAX_HAUTS
+        and colonne_max(combo) <= MAX_COLONNE
     )
 
 
 def theorie():
     """Dénombrement exhaustif des 1 906 884 combinaisons."""
-    suites, pairs, vecs, unites, hauts = Counter(), Counter(), Counter(), Counter(), Counter()
+    suites, pairs, vecs, unites, hauts, cols = Counter(), Counter(), Counter(), Counter(), Counter(), Counter()
     total = ok = 0
     for c in combinations(range(1, 50), 5):
         total += 1
@@ -99,6 +117,7 @@ def theorie():
         vecs[vecteur(c)] += 1
         unites[max_meme_unite(c)] += 1
         hauts[nb_hauts(c)] += 1
+        cols[colonne_max(c)] += 1
         if respecte_regles(c):
             ok += 1
     return {
@@ -109,4 +128,5 @@ def theorie():
         "vecteurs": {vecteur_str(k): v for k, v in vecs.items()},
         "unites": {str(k): v for k, v in unites.items()},
         "hauts": {str(k): v for k, v in hauts.items()},
+        "colonnes": {str(k): v for k, v in cols.items()},
     }
