@@ -62,3 +62,19 @@ td.col-r, th.col-r { text-align: center; }
   .test { font-size: .78rem; }
   summary { font-size: .9rem; }
 }
+
+/* Dernier tirage + séries (dans / hors critères) */
+.dernier-wrap { display: grid; grid-template-columns: minmax(260px, 1fr) 2fr; gap: 20px; align-items: start; }
+@media (max-width: 760px) { .dernier-wrap { grid-template-columns: 1fr; } }
+.series h3 { margin: 0 0 8px; font-size: 1rem; }
+.repart { display: flex; height: 26px; border-radius: 8px; overflow: hidden; font-size: .8rem; font-weight: 600; color: #fff; }
+.repart div { display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+.repart .in, .pion.in { background: var(--ok); }
+.repart .out, .pion.out { background: var(--ko); }
+.legende { display: flex; gap: 16px; flex-wrap: wrap; font-size: .85rem; color: var(--sub); margin: 6px 0 12px; }
+.serie-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.serie-kpis .kpi b { font-size: 1.25rem; }
+.serie-kpis .kpi.in b { color: var(--ok); } .serie-kpis .kpi.out b { color: var(--ko); }
+.pions { display: flex; flex-wrap: wrap; gap: 4px; }
+.pion { width: 18px; height: 18px; border-radius: 50%; }
+.pion.last { outline: 2px solid var(--txt); outline-offset: 1px; }

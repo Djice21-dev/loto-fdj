@@ -86,6 +86,50 @@ function afficherStats() {
 
 }
 
+// Séries « dans / hors critères » : comme les couleurs à la roulette.
+// Critères = les 6 règles (sans l'historique, qui exclurait chaque tirage de lui-même).
+function afficherSeries() {
+  if (!DRAWS.length) return;
+  const vide = new Set();
+  const res = DRAWS.map(d => violations(d.boules, vide) === 0);
+  const n = res.length, nIn = res.filter(Boolean).length, nOut = n - nIn;
+  // série en cours
+  const cur = res[n - 1];
+  let len = 0;
+  while (len < n && res[n - 1 - len] === cur) len++;
+  // séries max (avec dates de fin)
+  const best = { true: { len: 0, fin: -1 }, false: { len: 0, fin: -1 } };
+  let k = 0;
+  res.forEach((r, i) => {
+    k = i > 0 && res[i - 1] === r ? k + 1 : 1;
+    if (k >= best[r].len) best[r] = { len: k, fin: i };
+  });
+  const fmtD = i => new Date(DRAWS[i].date).toLocaleDateString('fr-FR');
+  const periode = b => b.len ? `du ${fmtD(b.fin - b.len + 1)} au ${fmtD(b.fin)}` : '';
+  const pIn = nIn / n;
+  const lib = r => (r ? 'dans les critères' : 'hors critères');
+  const derniers = DRAWS.slice(-50).map((d, j, a) => {
+    const r = res[n - a.length + j];
+    return `<span class="pion ${r ? 'in' : 'out'}${j === a.length - 1 ? ' last' : ''}" title="${new Date(d.date).toLocaleDateString('fr-FR')} : ${d.boules.join('-')} (${lib(r)})"></span>`;
+  }).join('');
+  const pSerie = Math.pow(cur ? pIn : 1 - pIn, len);
+  $('#series').innerHTML = `
+    <h3>Répartition des ${fmtInt(n)} tirages selon vos critères</h3>
+    <div class="repart">
+      <div class="in" style="width:${pIn * 100}%">${fmtInt(nIn)} · ${fmtPct(pIn)}</div>
+      <div class="out" style="width:${(1 - pIn) * 100}%">${fmtInt(nOut)} · ${fmtPct(1 - pIn)}</div>
+    </div>
+    <div class="legende"><span><b style="color:var(--ok)">● Dans les critères</b></span><span><b style="color:var(--ko)">● Hors critères</b></span><span>Théorie : ${fmtPct(STATS ? STATS.couverture.attendue : pIn)} dans les critères</span></div>
+    <div class="serie-kpis">
+      <div class="kpi ${cur ? 'in' : 'out'}"><b>${len} tirage${len > 1 ? 's' : ''}</b><span>série en cours ${lib(cur)}</span></div>
+      <div class="kpi in"><b>${best.true.len}</b><span>série max dans les critères<br>${periode(best.true)}</span></div>
+      <div class="kpi out"><b>${best.false.len}</b><span>série max hors critères<br>${periode(best.false)}</span></div>
+    </div>
+    <h3>Les 50 derniers tirages (le plus récent à droite)</h3>
+    <div class="pions">${derniers}</div>
+    <p class="test">Une série de ${len} tirage${len > 1 ? 's' : ''} ${lib(cur)} a une probabilité de ${fmtPct(pSerie)}. Comme à la roulette, chaque tirage est indépendant : le prochain a toujours ${fmtPct(STATS ? STATS.couverture.attendue : pIn)} de chances d'être dans les critères, quelle que soit la série en cours.</p>`;
+}
+
 async function init() {
   try {
     const [stats, draws] = await Promise.all([
@@ -95,6 +139,7 @@ async function init() {
     STATS = stats; DRAWS = draws;
     HISTO = new Set(draws.map(d => cle(d.boules)));
     afficherStats();
+    afficherSeries();
   } catch (e) {
     $('#etat').textContent = 'Historique indisponible : les grilles sont générées sans exclusion des combinaisons déjà sorties.';
   }
