@@ -69,7 +69,8 @@ function afficherStats() {
   const c = s.couverture;
   $('#couverture').innerHTML = `<div class="kpi"><b>${fmtPct(c.attendue)}</b><span>tirages conformes attendus (théorie)</span></div>
     <div class="kpi"><b>${fmtPct(c.observee)}</b><span>tirages conformes observés (${fmtInt(c.tirages_conformes)} sur ${fmtInt(n)})</span></div>
-    <div class="kpi"><b>${fmtInt(s.theorie.conservees)}</b><span>combinaisons conservées sur ${fmtInt(s.theorie.total)}</span></div>`;
+    <div class="kpi"><b>${fmtInt(s.theorie.conservees)}</b><span>combinaisons conservées sur ${fmtInt(s.theorie.total)} (règles 1 à 6)</span></div>` +
+    (c.jouables !== undefined ? `<div class="kpi"><b>${fmtInt(c.jouables)}</b><span>combinaisons jouables (règles 1 à 7, ${fmtInt(c.deja_sorties)} déjà sorties retirées)</span></div>` : '');
 
   const th = s.theorie, ob = s.observe;
   const ordreSuites = ['Aucune suite', '1 paire', '2 paires', '1 triplet', 'Triplet + paire', 'Suite de 4', 'Suite de 5'];

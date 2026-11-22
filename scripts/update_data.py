@@ -198,6 +198,9 @@ def calculer(tirages):
         return {k: v / total for k, v in d.items()}
 
     respect = [R.respecte_regles(c) for c in combos]
+    # règle 7 : combinaisons déjà sorties (premier et second tirage) qui respectent les règles 1 à 6
+    sorties = set(combos) | {tuple(t["second"]) for t in tirages if t.get("second")}
+    sorties_ok = sum(1 for c in sorties if R.respecte_regles(c))
 
     return {
         "maj": datetime.now(timezone.utc).isoformat(timespec="minutes"),
@@ -219,6 +222,8 @@ def calculer(tirages):
             "observee": (sum(respect) / n) if n else None,
             "tirages_conformes": sum(respect),
             "dernier_conforme": respect[-1] if n else None,
+            "deja_sorties": sorties_ok,
+            "jouables": th["conservees"] - sorties_ok,
         },
     }
 
