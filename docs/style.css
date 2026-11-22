@@ -78,6 +78,18 @@ td.col-r, th.col-r { text-align: center; }
 .pions { display: flex; flex-wrap: wrap; gap: 4px; }
 .pion { width: 18px; height: 18px; border-radius: 50%; }
 .pion.last { outline: 2px solid var(--txt); outline-offset: 1px; }
-.second-tirage { width: 100%; margin-top: 10px; }
-.second-tirage .sub { display: block; margin: 0 0 4px; font-size: .85rem; }
 .boule.second { border-style: dashed; }
+.tirage-ligne { margin-bottom: 12px; }
+.tirage-ligne .sub { display: block; margin: 0 0 4px; font-size: .85rem; }
+.tirage-ligne .badge { margin-left: 8px; }
+.series h3 small, .serie-card h3 small { font-weight: 400; color: var(--sub); font-size: .85rem; margin-left: 6px; }
+.series-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 760px) { .series-2col { grid-template-columns: 1fr; } }
+.serie-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.serie-card h3 { margin: 0 0 8px; font-size: 1rem; }
+.repart.petite { height: 20px; font-size: .75rem; margin-bottom: 10px; }
+.serie-card .serie-kpis { grid-template-columns: repeat(3, 1fr); }
+.serie-card .kpi span { font-size: .78rem; }
+.pions-titre { font-size: .85rem; font-weight: 600; margin-bottom: 6px; }
+.pions-titre small { font-weight: 400; color: var(--sub); }
+.serie-card .pion { width: 15px; height: 15px; }

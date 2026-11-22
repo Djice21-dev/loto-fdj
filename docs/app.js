@@ -62,9 +62,12 @@ function afficherStats() {
   const s = STATS, n = s.nb_tirages;
   const d = s.dernier;
   $('#etat').innerHTML = `${fmtInt(n)} tirages analysés du ${new Date(s.premier).toLocaleDateString('fr-FR')} au ${new Date(d.date).toLocaleDateString('fr-FR')} · mis à jour le ${new Date(s.maj).toLocaleString('fr-FR')}`;
-  $('#dernier').innerHTML = `${d.boules.map(b => boule(b)).join('')}${boule(d.chance, 'chance')}
-    <span class="badge ${s.couverture.dernier_conforme ? 'ok' : 'ko'}">${s.couverture.dernier_conforme ? 'Conforme aux règles' : 'Hors règles'}</span>` +
-    (d.second ? `<div class="second-tirage"><span class="sub">Second tirage</span><div class="boules">${d.second.map(b => boule(b, 'second')).join('')}</div></div>` : '');
+  const ok = c => violations(c, new Set()) === 0;
+  const badge = c => `<span class="badge ${ok(c) ? 'ok' : 'ko'}">${ok(c) ? 'Dans les critères' : 'Hors critères'}</span>`;
+  $('#dernier').innerHTML = `<div class="tirage-ligne"><span class="sub">Premier tirage · ${new Date(d.date).toLocaleDateString('fr-FR')}</span>
+      <div class="boules">${d.boules.map(b => boule(b)).join('')}${boule(d.chance, 'chance')}${badge(d.boules)}</div></div>` +
+    (d.second ? `<div class="tirage-ligne"><span class="sub">Second tirage</span>
+      <div class="boules">${d.second.map(b => boule(b, 'second')).join('')}${badge(d.second)}</div></div>` : '');
 
   const c = s.couverture;
   $('#couverture').innerHTML = `<div class="kpi"><b>${fmtPct(c.attendue)}</b><span>tirages conformes attendus (théorie)</span></div>
@@ -90,46 +93,65 @@ function afficherStats() {
 
 // Séries « dans / hors critères » : comme les couleurs à la roulette.
 // Critères = les 6 règles (sans l'historique, qui exclurait chaque tirage de lui-même).
-function afficherSeries() {
-  if (!DRAWS.length) return;
+const fmtD = s => new Date(s).toLocaleDateString('fr-FR');
+const libC = r => (r ? 'dans les critères' : 'hors critères');
+
+function calculSeries(liste) { // liste : [{date, combo}] dans l'ordre chronologique
   const vide = new Set();
-  const res = DRAWS.map(d => violations(d.boules, vide) === 0);
-  const n = res.length, nIn = res.filter(Boolean).length, nOut = n - nIn;
-  // série en cours
+  const res = liste.map(t => violations(t.combo, vide) === 0);
+  const n = res.length, nIn = res.filter(Boolean).length;
   const cur = res[n - 1];
   let len = 0;
   while (len < n && res[n - 1 - len] === cur) len++;
-  // séries max (avec dates de fin)
   const best = { true: { len: 0, fin: -1 }, false: { len: 0, fin: -1 } };
   let k = 0;
   res.forEach((r, i) => {
     k = i > 0 && res[i - 1] === r ? k + 1 : 1;
     if (k >= best[r].len) best[r] = { len: k, fin: i };
   });
-  const fmtD = i => new Date(DRAWS[i].date).toLocaleDateString('fr-FR');
-  const periode = b => b.len ? `du ${fmtD(b.fin - b.len + 1)} au ${fmtD(b.fin)}` : '';
-  const pIn = nIn / n;
-  const lib = r => (r ? 'dans les critères' : 'hors critères');
-  const derniers = DRAWS.slice(-50).map((d, j, a) => {
-    const r = res[n - a.length + j];
-    return `<span class="pion ${r ? 'in' : 'out'}${j === a.length - 1 ? ' last' : ''}" title="${new Date(d.date).toLocaleDateString('fr-FR')} : ${d.boules.join('-')} (${lib(r)})"></span>`;
+  return { liste, res, n, nIn, cur, len, best };
+}
+
+function barre(nIn, n, petite = false) {
+  const p = nIn / n;
+  return `<div class="repart${petite ? ' petite' : ''}">
+    <div class="in" style="width:${p * 100}%">${fmtInt(nIn)} · ${fmtPct(p)}</div>
+    <div class="out" style="width:${(1 - p) * 100}%">${fmtInt(n - nIn)} · ${fmtPct(1 - p)}</div></div>`;
+}
+
+function carteSeries(titre, depuis, S, pTheo) {
+  const periode = b => b.len ? `du ${fmtD(S.liste[b.fin - b.len + 1].date)}<br>au ${fmtD(S.liste[b.fin].date)}` : '';
+  const derniers = S.liste.slice(-50).map((t, j, a) => {
+    const r = S.res[S.n - a.length + j];
+    return `<span class="pion ${r ? 'in' : 'out'}${j === a.length - 1 ? ' last' : ''}" title="${fmtD(t.date)} : ${t.combo.join('-')} (${libC(r)})"></span>`;
   }).join('');
-  const pSerie = Math.pow(cur ? pIn : 1 - pIn, len);
-  $('#series').innerHTML = `
-    <h3>Répartition des ${fmtInt(n)} tirages selon vos critères</h3>
-    <div class="repart">
-      <div class="in" style="width:${pIn * 100}%">${fmtInt(nIn)} · ${fmtPct(pIn)}</div>
-      <div class="out" style="width:${(1 - pIn) * 100}%">${fmtInt(nOut)} · ${fmtPct(1 - pIn)}</div>
-    </div>
-    <div class="legende"><span><b style="color:var(--ok)">● Dans les critères</b></span><span><b style="color:var(--ko)">● Hors critères</b></span><span>Théorie : ${fmtPct(STATS ? STATS.couverture.attendue : pIn)} dans les critères</span></div>
+  const pSerie = Math.pow(S.cur ? pTheo : 1 - pTheo, S.len);
+  return `<h3>${titre} <small>${fmtInt(S.n)} tirages depuis ${depuis}</small></h3>
+    ${barre(S.nIn, S.n, true)}
     <div class="serie-kpis">
-      <div class="kpi ${cur ? 'in' : 'out'}"><b>${len} tirage${len > 1 ? 's' : ''}</b><span>série en cours ${lib(cur)}</span></div>
-      <div class="kpi in"><b>${best.true.len}</b><span>série max dans les critères<br>${periode(best.true)}</span></div>
-      <div class="kpi out"><b>${best.false.len}</b><span>série max hors critères<br>${periode(best.false)}</span></div>
+      <div class="kpi ${S.cur ? 'in' : 'out'}"><b>${S.len}</b><span>série en cours<br>${libC(S.cur)}</span></div>
+      <div class="kpi in"><b>${S.best.true.len}</b><span>série max dans les critères<br>${periode(S.best.true)}</span></div>
+      <div class="kpi out"><b>${S.best.false.len}</b><span>série max hors critères<br>${periode(S.best.false)}</span></div>
     </div>
-    <h3>Les 50 derniers tirages (le plus récent à droite)</h3>
+    <div class="pions-titre">50 derniers tirages <small>(le plus récent à droite)</small></div>
     <div class="pions">${derniers}</div>
-    <p class="test">Une série de ${len} tirage${len > 1 ? 's' : ''} ${lib(cur)} a une probabilité de ${fmtPct(pSerie)}. Comme à la roulette, chaque tirage est indépendant : le prochain a toujours ${fmtPct(STATS ? STATS.couverture.attendue : pIn)} de chances d'être dans les critères, quelle que soit la série en cours.</p>`;
+    <p class="test">Probabilité d'une série de ${S.len} ${libC(S.cur)} : ${fmtPct(pSerie)}.</p>`;
+}
+
+function afficherSeries() {
+  if (!DRAWS.length) return;
+  const P1 = calculSeries(DRAWS.map(d => ({ date: d.date, combo: d.boules })));
+  const sec = DRAWS.filter(d => d.second);
+  const P2 = sec.length ? calculSeries(sec.map(d => ({ date: d.date, combo: d.second }))) : null;
+  const pTheo = STATS ? STATS.couverture.attendue : P1.nIn / P1.n;
+  const nTot = P1.n + (P2 ? P2.n : 0), inTot = P1.nIn + (P2 ? P2.nIn : 0);
+  $('#series').innerHTML = `
+    <h3>Répartition des ${fmtInt(nTot)} tirages selon vos critères <small>(premier + second tirage)</small></h3>
+    ${barre(inTot, nTot)}
+    <div class="legende"><span><b style="color:var(--ok)">● Dans les critères</b></span><span><b style="color:var(--ko)">● Hors critères</b></span><span>Théorie : ${fmtPct(pTheo)} dans les critères</span></div>
+    <p class="test">Comme à la roulette, chaque tirage est indépendant : le prochain a toujours ${fmtPct(pTheo)} de chances d'être dans les critères, quelle que soit la série en cours.</p>`;
+  $('#serie-premier').innerHTML = carteSeries('Premier tirage', 'le 06/10/2008', P1, pTheo);
+  $('#serie-second').innerHTML = P2 ? carteSeries('Second tirage', 'le ' + fmtD(sec[0].date), P2, pTheo) : '';
 }
 
 async function init() {
