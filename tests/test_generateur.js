@@ -3,7 +3,7 @@ const assert = require('assert');
 const path = require('path');
 const R = require(path.join(__dirname, '..', 'docs', 'regles.js'));
 const draws = (() => { try { return require(path.join(__dirname, '..', 'docs', 'data', 'draws.json')); } catch { return []; } })();
-const histo = new Set(draws.map(d => R.cle(d.boules)));
+const histo = new Set(draws.flatMap(d => (d.second ? [d.boules, d.second] : [d.boules]).map(R.cle)));
 let total = 0;
 for (let run = 0; run < 200; run++) {
   const doublon = 1 + (run % 49);

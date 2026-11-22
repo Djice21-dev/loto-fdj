@@ -2,7 +2,7 @@
 // Règles : suites (aucune ou 1 paire), parité (1 à 4 pairs), au plus 2 numéros par dizaine,
 // au plus 2 numéros de même terminaison, de 1 à 3 numéros au-dessus de 31,
 // au plus 2 cases qui se suivent dans une colonne du bulletin,
-// combinaison jamais sortie depuis le 6 octobre 2008.
+// combinaison jamais sortie depuis le 6 octobre 2008 (premier ou second tirage).
 
 const fmtPct = (x, d = 1) => x > 0 && x < 0.0001 ? '< 0,01 %' : (x * 100).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' %';
 const fmtInt = x => x.toLocaleString('fr-FR');
@@ -138,7 +138,8 @@ async function init() {
       fetch('data/draws.json', { cache: 'no-cache' }).then(r => r.json()),
     ]);
     STATS = stats; DRAWS = draws;
-    HISTO = new Set(draws.map(d => cle(d.boules)));
+    // combinaisons déjà sorties : premier tirage et second tirage (depuis novembre 2019)
+    HISTO = new Set(draws.flatMap(d => (d.second ? [d.boules, d.second] : [d.boules]).map(cle)));
     afficherStats();
     afficherSeries();
   } catch (e) {

@@ -8,7 +8,8 @@
 5. Numéros hauts : de 1 à 3 numéros au-dessus de 31.
 6. Colonnes du bulletin : au plus 2 cases qui se suivent dans une même colonne
                (numéros espacés de 5, ex. 8-13-18 exclu), règle anti-partage.
-7. Historique: combinaison jamais sortie depuis le 6 octobre 2008.
+7. Historique: combinaison jamais sortie depuis le 6 octobre 2008 (premier ou
+               second tirage), appliquée par le générateur (docs/regles.js).
 """
 from collections import Counter
 from itertools import combinations

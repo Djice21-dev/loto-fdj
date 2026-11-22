@@ -12,7 +12,7 @@ Sur les 1 906 884 combinaisons possibles de 5 numéros, on garde celles qui resp
 4. **Terminaisons** : au plus 2 numéros avec le même chiffre des unités.
 5. **Numéros hauts** : de 1 à 3 numéros au-dessus de 31.
 6. **Colonnes du bulletin** : au plus 2 cases qui se suivent dans une même colonne du bulletin (numéros espacés de 5, par ex. 8-13-18 exclu). Règle anti-partage : ces dessins sont souvent cochés par les joueurs ; leur fréquence de sortie est conforme au hasard.
-7. **Historique** : la combinaison n'est jamais sortie depuis le 6 octobre 2008.
+7. **Historique** : la combinaison n'est jamais sortie depuis le 6 octobre 2008, ni au premier tirage, ni au second tirage (depuis novembre 2019).
 
 Les six premières règles gardent 1 149 716 combinaisons, soit 60,3 % des tirages attendus.
 

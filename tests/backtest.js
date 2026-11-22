@@ -109,6 +109,7 @@ function simuler(strategie, detail){
     res.cumul.push(Math.round(res.gains - res.mise));
     res.cumul2.push(Math.round(res.gains + res.gains2 - res.mise - res.mise2));
     histo.add(R.cle(d.boules)); // le tirage n'est connu qu'après coup
+    if (d.second) histo.add(R.cle(d.second));
   }
   res.solde = res.gains - res.mise;
   res.solde2 = res.gains2 - res.mise2;
