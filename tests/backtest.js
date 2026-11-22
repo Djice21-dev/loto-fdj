@@ -14,8 +14,25 @@ const info = raps.map(r => {
   const nr = 'rapport_du_rang9' in r ? 9 : 6;
   const rang = [], gagnants = [];
   for (let k = 1; k <= nr; k++){ rang[k] = num(r['rapport_du_rang' + k]); gagnants[k] = num(r['nombre_de_gagnant_au_rang' + k]); }
-  return { nr, rang, gagnants, prix: rang[nr] }; // le dernier rang rembourse la mise
+  // second tirage (option 0,80 € depuis novembre 2019) : rang 1 = 5 bons, 2 = 4, 3 = 3, 4 = 2
+  const s2 = { rang: [], gagnants: [] };
+  for (let k = 1; k <= 4; k++){ s2.rang[k] = num(r['rapport_du_rang' + k + '_second_tirage']); s2.gagnants[k] = num(r['nombre_de_gagnant_au_rang_' + k + '_second_tirage']); }
+  return { nr, rang, gagnants, prix: rang[nr], s2 }; // le dernier rang rembourse la mise
 });
+const PRIX_SECOND = 0.8;
+const moy2 = [];
+for (let k = 1; k <= 4; k++){
+  const v = info.filter((x, t) => draws[t].second && x.s2.gagnants[k] > 0).map(x => x.s2.rang[k]);
+  moy2[k] = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
+}
+function gainSecond(t, bons){
+  const rg = { 5: 1, 4: 2, 3: 3, 2: 4 }[bons];
+  if (!rg) return 0;
+  const x = info[t].s2, r = x.rang[rg], n = x.gagnants[rg];
+  if (rg === 1) return n === 0 ? (r > 0 ? r : 100000) : r * n / (n + 1); // partagé avec les autres gagnants
+  if (rg === 2 && n > 0) return r * n / (n + 1);
+  return r > 0 ? r : moy2[rg];
+}
 // moyenne par rang et par formule, pour les rares rapports non publiés (aucun gagnant)
 const moy = { 6: [], 9: [] };
 for (const nr of [6, 9]) for (let k = 1; k <= nr; k++){
@@ -64,7 +81,7 @@ function grillesHasard(){
 
 function simuler(strategie, detail){
   const histo = new Set();
-  const res = { mise: 0, gains: 0, rangs: Array(10).fill(0), meilleurs: [], cumul: [] };
+  const res = { mise: 0, gains: 0, rangs: Array(10).fill(0), meilleurs: [], cumul: [], mise2: 0, gains2: 0, rangs2: Array(5).fill(0), cumul2: [] };
   for (let t = 0; t < draws.length; t++){
     const d = draws[t], tir = new Set(d.boules), x = info[t];
     const grilles = strategie === 'MODELE' ? grillesModele(histo) : strategie === 'COUVERTURE' ? grillesCouverture() : grillesHasard();
@@ -80,11 +97,22 @@ function simuler(strategie, detail){
         if (detail && m >= 4) res.meilleurs.push({ date: d.date, grille: [...g].sort((a, b) => a - b), chance: chances[i], tirage: d.boules, numero_chance: d.chance, bons: m, chance_ok: c, gain: Math.round(v * 100) / 100 });
       }
     });
+    if (d.second){ // option second tirage jouée sur les 10 grilles
+      const t2 = new Set(d.second);
+      grilles.forEach((g, i) => {
+        const m2 = g.filter(n => t2.has(n)).length, v2 = gainSecond(t, m2);
+        res.mise2 += PRIX_SECOND; res.gains2 += v2;
+        if (v2 > 0) res.rangs2[{ 5: 1, 4: 2, 3: 3, 2: 4 }[m2]]++;
+        if (detail && m2 >= 4) res.meilleurs.push({ date: d.date, second_tirage: true, grille: [...g].sort((a, b) => a - b), tirage: d.second, bons: m2, gain: Math.round(v2 * 100) / 100 });
+      });
+    }
     res.cumul.push(Math.round(res.gains - res.mise));
+    res.cumul2.push(Math.round(res.gains + res.gains2 - res.mise - res.mise2));
     histo.add(R.cle(d.boules)); // le tirage n'est connu qu'après coup
   }
   res.solde = res.gains - res.mise;
-  if (!detail) delete res.cumul;
+  res.solde2 = res.gains2 - res.mise2;
+  if (!detail){ delete res.cumul; delete res.cumul2; }
   return res;
 }
 
@@ -102,6 +130,14 @@ for (const st of ['MODELE', 'COUVERTURE', 'HASARD']){
     gains_ecart_type: Math.sqrt(runs.reduce((a, r) => a + (r.gains - runs.reduce((b, z) => b + z.gains, 0) / S) ** 2, 0) / (S - 1)),
     gains_tous: runs.map(r => Math.round(r.gains)),
     rangs_moyens: rangsMoy, part_simulations_rang1ou2: avecGrosGain / S,
+    second_tirage: {
+      tirages: draws.filter(d => d.second).length, mise: runs[0].mise2,
+      gains_moyens: runs.reduce((a, r) => a + r.gains2, 0) / S,
+      solde_moyen: runs.reduce((a, r) => a + r.solde2, 0) / S,
+      rangs_moyens: Array(5).fill(0).map((_, k) => runs.reduce((a, r) => a + r.rangs2[k], 0) / S),
+      part_simulations_rang1: runs.filter(r => r.rangs2[1] > 0).length / S,
+      gains_tous: runs.map(r => Math.round(r.gains2)),
+    },
   };
   process.stderr.write(st + ' ok\n');
 }

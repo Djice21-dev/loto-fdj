@@ -78,3 +78,6 @@ td.col-r, th.col-r { text-align: center; }
 .pions { display: flex; flex-wrap: wrap; gap: 4px; }
 .pion { width: 18px; height: 18px; border-radius: 50%; }
 .pion.last { outline: 2px solid var(--txt); outline-offset: 1px; }
+.second-tirage { width: 100%; margin-top: 10px; }
+.second-tirage .sub { display: block; margin: 0 0 4px; font-size: .85rem; }
+.boule.second { border-style: dashed; }

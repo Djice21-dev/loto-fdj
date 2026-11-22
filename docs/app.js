@@ -63,7 +63,8 @@ function afficherStats() {
   const d = s.dernier;
   $('#etat').innerHTML = `${fmtInt(n)} tirages analysés du ${new Date(s.premier).toLocaleDateString('fr-FR')} au ${new Date(d.date).toLocaleDateString('fr-FR')} · mis à jour le ${new Date(s.maj).toLocaleString('fr-FR')}`;
   $('#dernier').innerHTML = `${d.boules.map(b => boule(b)).join('')}${boule(d.chance, 'chance')}
-    <span class="badge ${s.couverture.dernier_conforme ? 'ok' : 'ko'}">${s.couverture.dernier_conforme ? 'Conforme aux règles' : 'Hors règles'}</span>`;
+    <span class="badge ${s.couverture.dernier_conforme ? 'ok' : 'ko'}">${s.couverture.dernier_conforme ? 'Conforme aux règles' : 'Hors règles'}</span>` +
+    (d.second ? `<div class="second-tirage"><span class="sub">Second tirage</span><div class="boules">${d.second.map(b => boule(b, 'second')).join('')}</div></div>` : '');
 
   const c = s.couverture;
   $('#couverture').innerHTML = `<div class="kpi"><b>${fmtPct(c.attendue)}</b><span>tirages conformes attendus (théorie)</span></div>
