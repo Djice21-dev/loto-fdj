@@ -84,6 +84,8 @@ def parse_date(s):
 
 
 def normaliser(rows):
+    cols = sorted({k.strip().lower() for row in rows for k in row if isinstance(k, str) and "second" in k.lower()})
+    print("Colonnes second tirage :", ", ".join(c for c in cols if "boule" in c) or "aucune")
     tirages = {}
     for row in rows:
         r = {k.strip().lower(): v.strip() for k, v in row.items() if isinstance(k, str) and isinstance(v, str)}
@@ -98,7 +100,15 @@ def normaliser(rows):
         if not all(1 <= b <= 49 for b in boules) or not 1 <= chance <= 10:
             continue
         rap = {k: v for k, v in r.items() if k.startswith("rapport_du_rang") or k.startswith("nombre_de_gagnant")}
-        tirages[d] = {"date": d.isoformat(), "boules": boules, "chance": chance, "_rapports": rap}
+        t = {"date": d.isoformat(), "boules": boules, "chance": chance, "_rapports": rap}
+        # second tirage (option à 0,80 €, depuis novembre 2019) : 5 boules sans numéro Chance
+        try:
+            second = sorted(int(r[f"boule_{i}_second_tirage"]) for i in range(1, 6))
+            if len(set(second)) == 5 and all(1 <= b <= 49 for b in second):
+                t["second"] = second
+        except (KeyError, ValueError):
+            pass
+        tirages[d] = t
     return [tirages[d] for d in sorted(tirages)]
 
 
@@ -231,7 +241,7 @@ def main(args):
         t.pop("_rapports")
     (OUT / "draws.json").write_text(json.dumps(tirages, separators=(",", ":")))
     (OUT / "stats.json").write_text(json.dumps(calculer(tirages), ensure_ascii=False, separators=(",", ":")))
-    print(f"{len(tirages)} tirages du {tirages[0]['date']} au {tirages[-1]['date']}")
+    print(f"{len(tirages)} tirages du {tirages[0]['date']} au {tirages[-1]['date']}, dont {sum('second' in t for t in tirages)} avec second tirage")
 
 
 if __name__ == "__main__":
